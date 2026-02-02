@@ -7,7 +7,7 @@ import { useState } from "react";
 
 export function Navbar() {
   const { user, logout } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
   const isHome = location === "/";
@@ -16,7 +16,7 @@ export function Navbar() {
     { href: "/", label: "Home", type: "route" },
     { href: "#tracks", label: "Eligibility", type: "anchor" },
     { href: "#about-ideathon", label: "About", type: "anchor" },
-    { href: "/tracks", label: "Tracks", type: "route" },
+    // { href: "/tracks", label: "Tracks", type: "route" }, // Hidden for now - uncomment to enable
     { href: "#prizes", label: "Prizes", type: "anchor" },
   ];
 
@@ -74,7 +74,9 @@ export function Navbar() {
                   onClick={(e) => {
                     e.preventDefault();
                     if (location !== '/') {
-                      window.location.href = '/' + link.href;
+                      // Store scroll target and navigate to home
+                      sessionStorage.setItem('scrollTarget', link.href);
+                      setLocation('/');
                     } else {
                       const element = document.querySelector(link.href);
                       element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -142,12 +144,14 @@ export function Navbar() {
                       href={link.href}
                       onClick={(e) => {
                         e.preventDefault();
-                        if (location === '/') {
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
-                          window.location.href = link.href;
-                        }
                         setIsOpen(false);
+                        setTimeout(() => {
+                          if (location === '/') {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          } else {
+                            window.location.href = link.href;
+                          }
+                        }, 300);
                       }}
                       className="relative px-4 py-3 text-base font-display text-white/80 hover:text-primary cursor-pointer bg-white/5 hover:bg-primary/10 rounded-lg transition-all duration-300 border border-white/10 hover:border-primary/30"
                     >
@@ -157,7 +161,10 @@ export function Navbar() {
                     <Link
                       key={link.label}
                       href={link.href}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpen(false);
+                        window.scrollTo({ top: 0, behavior: 'auto' });
+                      }}
                       className="relative px-4 py-3 text-base font-display text-white/80 hover:text-primary cursor-pointer bg-white/5 hover:bg-primary/10 rounded-lg transition-all duration-300 border border-white/10 hover:border-primary/30"
                     >
                       {link.label}
@@ -169,13 +176,17 @@ export function Navbar() {
                     href={link.href} 
                     onClick={(e) => {
                       e.preventDefault();
-                      if (location !== '/') {
-                        window.location.href = '/' + link.href;
-                      } else {
-                        const element = document.querySelector(link.href);
-                        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
                       setIsOpen(false);
+                      setTimeout(() => {
+                        if (location !== '/') {
+                          // Store scroll target and navigate to home
+                          sessionStorage.setItem('scrollTarget', link.href);
+                          setLocation('/');
+                        } else {
+                          const element = document.querySelector(link.href);
+                          element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 300);
                     }}
                     className="relative px-4 py-3 text-base font-display text-white/80 hover:text-primary cursor-pointer bg-white/5 hover:bg-primary/10 rounded-lg transition-all duration-300 border border-white/10 hover:border-primary/30"
                   >
@@ -186,14 +197,25 @@ export function Navbar() {
               {user ? (
                 <>
                   <Link href="/dashboard" onClick={() => setIsOpen(false)}>
-                    <span className="text-lg font-display text-white/80 hover:text-primary block">Dashboard</span>
+                    <span className="text-lg font-display text-white/80 hover:text-primary block px-4 py-3">Dashboard</span>
                   </Link>
-                  <Button onClick={() => logout()} className="w-full bg-primary text-black">Logout</Button>
+                  <Button 
+                    onClick={() => {
+                      logout();
+                      setIsOpen(false);
+                    }} 
+                    className="w-full bg-primary text-black"
+                  >
+                    Logout
+                  </Button>
                 </>
               ) : (
                 <Button 
-                  onClick={() => window.open('https://unstop.com/hackathons/innovgenius-2026-hackathon-acm-tcet-1631419', '_blank')}
-                  className="w-full bg-primary text-black"
+                  onClick={() => {
+                    setIsOpen(false);
+                    window.open('https://unstop.com/hackathons/innovgenius-2026-hackathon-acm-tcet-1631419', '_blank');
+                  }}
+                  className="w-full bg-gradient-to-r from-primary via-cyan-400 to-blue-500 text-black font-bold hover:shadow-[0_0_30px_rgba(0,212,255,0.5)] transition-all duration-300"
                 >
                   Register Now
                 </Button>

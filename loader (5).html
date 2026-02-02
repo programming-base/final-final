@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Loader</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    min-height: 100vh;
+    width: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ═══ RADIAL ORBS ═══ */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(var(--blur));
+    opacity: var(--op);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .orb-1 { --blur:120px; --op:.11; width:550px; height:550px; background:radial-gradient(circle, rgba(255,255,255,.32) 0%, transparent 70%); top:-200px; left:-160px; animation:dA 12s ease-in-out infinite alternate; }
+  .orb-2 { --blur:95px;  --op:.08; width:400px; height:400px; background:radial-gradient(circle, rgba(255,255,255,.28) 0%, transparent 70%); bottom:-120px; right:-90px; animation:dB 14s ease-in-out infinite alternate; }
+  .orb-3 { --blur:150px; --op:.06; width:650px; height:650px; background:radial-gradient(circle, rgba(255,255,255,.18) 0%, transparent 65%); top:38%; left:32%; animation:dC 16s ease-in-out infinite alternate; }
+  .orb-4 { --blur:75px;  --op:.07; width:280px; height:280px; background:radial-gradient(circle, rgba(255,255,255,.26) 0%, transparent 70%); top:12%; right:10%; animation:dD 10s ease-in-out infinite alternate; }
+  .orb-5 { --blur:105px; --op:.06; width:360px; height:360px; background:radial-gradient(circle, rgba(255,255,255,.2) 0%, transparent 70%); bottom:18%; left:15%; animation:dE 13s ease-in-out infinite alternate; }
+
+  @keyframes dA { to { transform:translate(65px,85px); } }
+  @keyframes dB { to { transform:translate(-55px,-70px); } }
+  @keyframes dC { to { transform:translate(45px,-60px); } }
+  @keyframes dD { to { transform:translate(-35px,50px); } }
+  @keyframes dE { to { transform:translate(55px,-45px); } }
+
+  /* ═══ STARFIELD ═══ */
+  .starfield { position:fixed; inset:0; z-index:2; pointer-events:none; }
+
+  .star-a {
+    position:absolute; background:#fff; border-radius:50%; opacity:0;
+    animation: twinkA var(--d) ease-in-out infinite;
+    animation-delay: var(--del);
+  }
+  @keyframes twinkA {
+    0%,100% { opacity:0; transform:scale(.4); }
+    50%     { opacity:var(--pk); transform:scale(1); }
+  }
+
+  .star-b {
+    position:absolute; background:#fff; border-radius:50%; opacity:0;
+    animation: twinkB var(--d) ease-out infinite;
+    animation-delay: var(--del);
+  }
+  @keyframes twinkB {
+    0%,100% { opacity:0; }
+    10%     { opacity:var(--pk); }
+    30%     { opacity:0; }
+  }
+
+  .star-c {
+    position:absolute; width:var(--sz); height:var(--sz); opacity:0;
+    animation: twinkC var(--d) ease-in-out infinite;
+    animation-delay: var(--del);
+  }
+  .star-c::before, .star-c::after {
+    content:''; position:absolute; background:#fff; border-radius:50%;
+  }
+  .star-c::before { width:100%; height:28%; top:36%; left:0; }
+  .star-c::after  { width:28%; height:100%; top:0; left:36%; }
+  @keyframes twinkC {
+    0%,100% { opacity:0; transform:scale(.2) rotate(0deg); }
+    50%     { opacity:var(--pk); transform:scale(1) rotate(45deg); }
+  }
+
+  .star-d {
+    position:absolute; background:#fff; border-radius:50%; opacity:0;
+    box-shadow: 0 0 var(--gl) var(--gl2) rgba(255,255,255,.3);
+    animation: twinkD var(--d) ease-in-out infinite;
+    animation-delay: var(--del);
+  }
+  @keyframes twinkD {
+    0%,100% { opacity:0; transform:scale(.5); }
+    50%     { opacity:var(--pk); transform:scale(1); }
+  }
+
+  /* ═══ TITLE ═══ */
+  .title-wrap {
+    position:relative; z-index:3;
+    text-align:center;
+  }
+  .title-main {
+    font-family:'Rajdhani', sans-serif;
+    font-size: 72px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .title-main .innov {
+    font-weight: 300;
+    color: #ffffff;
+  }
+  .title-main .genius {
+    font-weight: 700;
+    color: #67e8f9;
+    text-shadow: 0 0 28px rgba(103,232,249,.4);
+  }
+  .title-sub {
+    font-family:'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 8px;
+    color: rgba(255,255,255,.28);
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+
+  /* ═══ LOADER ═══ */
+  .loader-wrap {
+    position:relative; z-index:3;
+    display:flex; flex-direction:column;
+    align-items:center; gap:30px;
+  }
+
+  .orbit-ring {
+    width:200px; height:200px;
+    border-radius:50%;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .orbit-ring::after {
+    content:''; position:absolute; inset:0;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.07);
+  }
+  .orbit-ring::before {
+    content:''; position:absolute; inset:-2px;
+    border-radius:50%;
+    border:2.5px solid transparent;
+    border-top-color: rgba(255,255,255,.75);
+    border-right-color: rgba(255,255,255,.2);
+    animation: orbit 1.8s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,.3));
+  }
+  @keyframes orbit { to { transform:rotate(360deg); } }
+
+  .orbit-dot {
+    position:absolute;
+    width:7px; height:7px;
+    background:#fff; border-radius:50%;
+    top:-5px; left:50%; transform:translateX(-50%);
+    box-shadow: 0 0 6px 2px rgba(255,255,255,.4);
+    animation: orbit 1.8s linear infinite;
+  }
+
+  /* pulse rings */
+  .pulse-ring {
+    position:absolute; border-radius:50%;
+    border:1px solid rgba(255,255,255,.18);
+    top:50%; left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0; pointer-events:none;
+    width:110px; height:110px;
+  }
+  .pulse-ring:nth-child(2) { animation: pulseOut 2.4s ease-out infinite; animation-delay:0s; }
+  .pulse-ring:nth-child(3) { animation: pulseOut 2.4s ease-out infinite; animation-delay:.8s; }
+  .pulse-ring:nth-child(4) { animation: pulseOut 2.4s ease-out infinite; animation-delay:1.6s; }
+  @keyframes pulseOut {
+    0%   { transform:translate(-50%,-50%) scale(.55); opacity:.45; }
+    100% { transform:translate(-50%,-50%) scale(2.1); opacity:0; }
+  }
+
+  /* brain */
+  .brain-wrap {
+    position:relative; z-index:1;
+    display:flex; align-items:center; justify-content:center;
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+  .brain-glow {
+    position:absolute;
+    width:120px; height:120px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(103,232,249,.13) 0%, transparent 70%);
+    filter:blur(14px);
+    z-index:0;
+  }
+  .brain-wrap svg {
+    position:relative; z-index:1;
+    width:96px; height:96px;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,.3));
+    cursor: pointer;
+    transition: filter .4s;
+  }
+
+  /* ── yellow hover ── */
+  .brain-wrap:hover svg {
+    filter: drop-shadow(0 0 18px rgba(253,224,71,.45));
+  }
+  .brain-wrap:hover .brain-glow {
+    background: radial-gradient(circle, rgba(253,224,71,.22) 0%, transparent 70%);
+  }
+  .brain-wrap:hover .bulb-glass {
+    fill: rgba(253,224,71,.18);
+    stroke: #fde047;
+  }
+  .brain-wrap:hover .bulb-inner {
+    fill: rgba(253,224,71,.22);
+  }
+  .brain-wrap:hover .bulb-filament {
+    stroke: #fde047;
+    opacity: 1;
+  }
+  .brain-wrap:hover .bulb-lead {
+    stroke: #fde047;
+    opacity: .75;
+  }
+  .brain-wrap:hover .bulb-base {
+    stroke: #fde047;
+  }
+
+  /* smooth transitions on all SVG parts */
+  .bulb-glass, .bulb-inner, .bulb-filament, .bulb-lead, .bulb-base {
+    transition: fill .4s, stroke .4s, opacity .4s;
+  }
+  .brain-glow {
+    transition: background .4s;
+  }
+  @keyframes breathe {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%     { opacity:.6; transform:scale(.94); }
+  }
+
+  /* dots */
+  .dots { display:flex; gap:10px; }
+  .dots span {
+    width:5px; height:5px; border-radius:50%;
+    background:#fff; opacity:.1;
+    animation: dotP 1.5s ease-in-out infinite;
+    box-shadow: 0 0 4px rgba(255,255,255,.25);
+  }
+  .dots span:nth-child(2) { animation-delay:.2s; }
+  .dots span:nth-child(3) { animation-delay:.4s; }
+  @keyframes dotP {
+    0%,80%,100% { opacity:.1; transform:scale(.6); }
+    40%         { opacity:.8; transform:scale(1); }
+  }
+
+  /* loading text */
+  .load-text {
+    font-family:'Share Tech Mono', monospace;
+    font-size:9.5px; letter-spacing:5px;
+    color:rgba(255,255,255,.3);
+    text-transform:uppercase;
+    animation: textFade 2.4s ease-in-out infinite;
+  }
+  @keyframes textFade {
+    0%,100% { opacity:.2; }
+    50%     { opacity:.65; }
+  }
+
+  /* grain */
+  .grain {
+    position:fixed; inset:0; z-index:99;
+    pointer-events:none; opacity:.03;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="orb orb-4"></div>
+<div class="orb orb-5"></div>
+
+<div class="starfield" id="sf"></div>
+
+<div style="display:flex;flex-direction:column;align-items:center;gap:52px;position:relative;z-index:3;">
+
+  <!-- TITLE -->
+  <div class="title-wrap">
+    <div class="title-main"><span class="innov">Innov</span><span class="genius">Genius</span></div>
+    <div class="title-sub">Think beyond · Build beyond</div>
+  </div>
+
+  <!-- LOADER -->
+  <div class="loader-wrap">
+    <div class="orbit-ring">
+      <div class="orbit-dot"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+
+      <!-- BRAIN -->
+      <div class="brain-wrap">
+        <div class="brain-glow"></div>
+
+        <svg class="bulb-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+          <!-- outer glass bulb shape -->
+          <path class="bulb-glass" d="
+            M100 68
+            C72 68, 52 88, 52 112
+            C52 132, 64 148, 82 152
+            L82 158
+            L118 158
+            L118 152
+            C136 148, 148 132, 148 112
+            C148 88, 128 68, 100 68 Z
+          "
+          fill="rgba(255,255,255,.07)"
+          stroke="#fff"
+          stroke-width="2.8"
+          stroke-linejoin="round"
+          />
+
+          <!-- inner glow circle -->
+          <circle class="bulb-inner" cx="100" cy="114" r="22"
+            fill="rgba(255,255,255,.06)"
+            stroke="none"/>
+
+          <!-- filament coil -->
+          <path class="bulb-filament" d="
+            M100 96
+            C96 96, 94 100, 96 103
+            C98 106, 102 106, 104 103
+            C106 100, 104 96, 100 96
+            C96 96, 94 100, 96 104
+            C98 108, 102 108, 104 104
+            C106 100, 104 96, 100 96
+          "
+          stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".75"/>
+
+          <!-- filament leads -->
+          <line class="bulb-lead" x1="100" y1="96"  x2="100" y2="88"  stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+          <line class="bulb-lead" x1="100" y1="108" x2="100" y2="118" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+
+          <!-- base ridge 1 -->
+          <rect class="bulb-base" x="80" y="158" width="40" height="6" rx="2"
+            fill="none" stroke="#fff" stroke-width="2" opacity=".7"/>
+          <!-- base ridge 2 -->
+          <rect class="bulb-base" x="83" y="166" width="34" height="5" rx="2"
+            fill="none" stroke="#fff" stroke-width="1.8" opacity=".55"/>
+          <!-- base tip -->
+          <rect class="bulb-base" x="88" y="173" width="24" height="4" rx="2"
+            fill="none" stroke="#fff" stroke-width="1.6" opacity=".4"/>
+
+        </svg>
+      </div>
+    </div>
+
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="load-text">Initializing</div>
+  </div>
+
+</div>
+
+<div class="grain"></div>
+
+<script>
+(function(){
+  const sf = document.getElementById('sf');
+
+  for(let i=0;i<280;i++){
+    const el=document.createElement('div'); el.className='star-a';
+    const sz=0.7+Math.random()*2;
+    el.style.width=sz+'px'; el.style.height=sz+'px';
+    el.style.top=(Math.random()*100)+'%'; el.style.left=(Math.random()*100)+'%';
+    el.style.setProperty('--d',(2.5+Math.random()*4)+'s');
+    el.style.setProperty('--del',(Math.random()*6)+'s');
+    el.style.setProperty('--pk',0.12+Math.random()*0.6);
+    sf.appendChild(el);
+  }
+  for(let i=0;i<120;i++){
+    const el=document.createElement('div'); el.className='star-b';
+    const sz=0.6+Math.random()*1.6;
+    el.style.width=sz+'px'; el.style.height=sz+'px';
+    el.style.top=(Math.random()*100)+'%'; el.style.left=(Math.random()*100)+'%';
+    el.style.setProperty('--d',(1.8+Math.random()*3.5)+'s');
+    el.style.setProperty('--del',(Math.random()*5)+'s');
+    el.style.setProperty('--pk',0.3+Math.random()*0.55);
+    sf.appendChild(el);
+  }
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div'); el.className='star-c';
+    const sz=3+Math.random()*5;
+    el.style.top=(Math.random()*100)+'%'; el.style.left=(Math.random()*100)+'%';
+    el.style.setProperty('--sz',sz+'px');
+    el.style.setProperty('--d',(3+Math.random()*5)+'s');
+    el.style.setProperty('--del',(Math.random()*6)+'s');
+    el.style.setProperty('--pk',0.15+Math.random()*0.45);
+    sf.appendChild(el);
+  }
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div'); el.className='star-d';
+    const sz=1.5+Math.random()*2.5;
+    el.style.width=sz+'px'; el.style.height=sz+'px';
+    el.style.top=(Math.random()*100)+'%'; el.style.left=(Math.random()*100)+'%';
+    el.style.setProperty('--d',(3+Math.random()*4)+'s');
+    el.style.setProperty('--del',(Math.random()*5.5)+'s');
+    el.style.setProperty('--pk',0.2+Math.random()*0.5);
+    el.style.setProperty('--gl',(sz*0.8)+'px');
+    el.style.setProperty('--gl2',(sz*0.4)+'px');
+    sf.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>

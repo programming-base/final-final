@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { SpaceBackground } from "@/components/SpaceBackground";
+import { useEffect } from "react";
 
 const tracks = [
   {
@@ -30,6 +31,11 @@ const tracks = [
 ];
 
 export default function Tracks() {
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       <SpaceBackground />

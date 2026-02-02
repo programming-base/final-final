@@ -72,15 +72,38 @@ export default function Landing() {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-  // Handle hash navigation after page load
+  // Handle hash navigation and cross-route scrolling
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        const element = document.querySelector(hash);
-        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+    const pendingScroll = sessionStorage.getItem('scrollTarget');
+    
+    // Determine scroll target (hash in URL or pending from sessionStorage)
+    const scrollTarget = hash || pendingScroll;
+    
+    // Clear pending scroll from sessionStorage
+    if (pendingScroll) {
+      sessionStorage.removeItem('scrollTarget');
+    }
+    
+    // Only proceed if there's a valid scroll target
+    if (scrollTarget && scrollTarget.length > 1) {
+      // Wait for page to fully render
+      const scrollToTarget = () => {
+        const element = document.querySelector(scrollTarget);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+
+      // Give DOM time to render
+      const timer = setTimeout(scrollToTarget, 200);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    } else {
+      // No scroll target - ensure we're at the top
+      window.scrollTo(0, 0);
     }
   }, []);
 
@@ -123,7 +146,7 @@ export default function Landing() {
       <FloatingIcons />
 
       {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center justify-center pt-28 overflow-hidden">
+      <div className="relative min-h-screen flex items-center justify-center pt-24 md:pt-28 overflow-hidden">
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.h1
@@ -423,7 +446,7 @@ export default function Landing() {
           >
             <div className="text-4xl font-bold text-white/20 mb-4 group-hover:text-primary/20 transition-colors">02</div>
             <div className="text-2xl font-bold text-white mb-2">Runner Up</div>
-            <div className="text-3xl font-display font-bold text-primary mb-6">₹8,000</div>
+            <div className="text-3xl font-display font-bold text-primary mb-6">₹10,000</div>
             <ul className="text-sm text-white/60 space-y-2">
               <li>Cash Prize</li>
               <li>Certificate</li>
